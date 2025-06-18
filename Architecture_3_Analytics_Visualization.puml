@@ -1,0 +1,31 @@
+@startuml
+!theme materia
+title Architecture 3: Analytics & Visualization Layer (Core Syntax)
+
+actor "Plant Operator" as Operator
+
+package "User's Browser" #AliceBlue {
+  component "Web Application\n(Dashboard)" as WebApp
+}
+
+package "Cloud Infrastructure" #LightGreen {
+    component "API Server" as API_Server
+
+    component "User IAM Service" as IAM
+    note right of IAM: e.g., Auth0, Cognito
+
+    database "Time-Series Database (TSDB)" as TSDB
+    database "Relational Database (RDB)" as RDB
+}
+
+Operator -right-> WebApp : Interacts via HTTPS
+
+WebApp --> IAM : Authenticate User
+IAM --> WebApp : Returns Auth Token
+
+WebApp --> API_Server : API Calls with Token (HTTPS)
+API_Server --> IAM : Validate Token
+API_Server --> TSDB : Queries historical telemetry
+API_Server --> RDB : Queries device & user metadata
+
+@enduml

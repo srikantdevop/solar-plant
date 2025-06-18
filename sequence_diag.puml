@@ -1,0 +1,24 @@
+@startuml
+!theme materia
+title Sequence Diagram: High Wind Speed Alert
+
+actor "IoT Gateway" as Gateway
+participant "ingestion-service" as IngestionSvc
+participant "Kafka\n('telemetry-raw' topic)" as TelemetryTopic
+participant "alerting-service" as AlertingSvc
+participant "Kafka\n('alerts' topic)" as AlertsTopic
+actor "Operator" as Operator
+
+Gateway -> IngestionSvc: POST /telemetry\n(payload: wind_speed=120km/h)
+activate IngestionSvc
+IngestionSvc -> TelemetryTopic: Produce(TelemetryMessage)
+deactivate IngestionSvc
+
+TelemetryTopic -> AlertingSvc: Consume(TelemetryMessage)
+activate AlertingSvc
+AlertingSvc -> AlertingSvc: Apply Business Rules\n(120km/h > 100km/h threshold)
+AlertingSvc -> AlertsTopic: Produce(AlertMessage)
+AlertingSvc -> Operator: Send SMS/Email Notification
+deactivate AlertingSvc
+
+@enduml

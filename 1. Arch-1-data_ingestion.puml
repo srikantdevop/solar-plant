@@ -1,0 +1,26 @@
+@startuml
+!theme materia
+title Architecture 1: Data Ingestion Layer (Core Syntax)
+
+package "On-Premise: Solar Plant Site" #LightBlue {
+  node "IoT Gateway" as Gateway {
+    [Data Aggregator]
+    [Local Buffer]
+  }
+  note right of Gateway
+    - Polls sensors via local protocols (e.g., Modbus).
+    - Buffers data to prevent loss during internet outages.
+    - Establishes a single, secure outbound connection.
+  end note
+
+  node "Sensor Array" as Sensors
+}
+
+package "Cloud Infrastructure" #LightGreen {
+    cloud "MQTT Broker" as Broker
+}
+
+Sensors ..> Gateway : Local Protocols
+Gateway -[#008000,bold]-> Broker : MQTT over TLS
+
+@enduml

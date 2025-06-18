@@ -1,0 +1,55 @@
+@startuml
+!theme materia
+title Azure-based Microservices Architecture for Solar Plant Management
+
+!include <tupadr3/font-awesome-5/server>
+!include <tupadr3/font-awesome-5/cogs>
+
+skinparam actor {
+  backgroundColor #A9DCDF
+}
+
+actor "IoT Gateway" as Gateway
+
+package "Azure Cloud" #AliceBlue {
+
+  cloud "Azure Event Hubs\n(as Kafka)" as Kafka
+
+  package "Azure Kubernetes Service (AKS) Cluster" {
+
+    component "ingestion-service\n(Quarkus)" as IngestionSvc
+    component "alerting-service\n(Quarkus)" as AlertingSvc
+    component "persistence-service\n(Quarkus)" as PersistenceSvc
+    component "query-api-service\n(Quarkus)" as QuerySvc
+
+  }
+
+  database "Azure Cosmos DB\n(for Telemetry)" as CosmosDB
+  database "Azure PostgreSQL\n(for Metadata & Alerts)" as PostgresDB
+
+  package "CI/CD" {
+      component "Azure DevOps\nPipeline" as CI
+      component "Azure Container\nRegistry (ACR)" as ACR
+  }
+}
+
+' Data Flow
+Gateway --> IngestionSvc : "1. Telemetry (HTTPS)"
+IngestionSvc -> Kafka : "2. Produce to 'telemetry-raw' topic"
+
+Kafka --> AlertingSvc : "3. Consume from 'telemetry-raw'"
+AlertingSvc -> Kafka : "4. Produce to 'alerts' topic"
+
+Kafka --> PersistenceSvc : "5. Consume from topics"
+PersistenceSvc --> CosmosDB : "6a. Store Telemetry"
+PersistenceSvc --> PostgresDB : "6b. Store Alerts"
+
+' CI/CD Flow
+CI -> ACR : "Build & Push Image"
+ACR --> AKS : "Deploy Services"
+
+' Query Flow (for UI)
+QuerySvc --> CosmosDB
+QuerySvc --> PostgresDB
+
+@enduml

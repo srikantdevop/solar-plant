@@ -1,0 +1,45 @@
+@startuml
+!theme materia
+title Class Diagram: Core Domain Model
+
+abstract class "AggregateRoot<ID>" {
+  + ID id
+}
+
+class SolarPlant extends "AggregateRoot<UUID>" {
+  + String name
+  + String location
+}
+
+class Device extends "AggregateRoot<UUID>" {
+  <<Entity>>
+  + String name
+  + String model
+}
+
+class Alert {
+  <<Entity>>
+  + AlertId id
+  + Severity severity
+  + String message
+  + Instant timestamp
+}
+
+class TelemetryReading {
+  <<ValueObject>>
+  + Instant timestamp
+  + double value
+  + String unit
+}
+
+SolarPlant "1" -- "1..*" Device : contains
+Device "1" -- "0..*" Alert : can have
+Device "1" -- "0..*" TelemetryReading : generates
+
+enum Severity {
+  INFO
+  WARNING
+  CRITICAL
+}
+
+@enduml

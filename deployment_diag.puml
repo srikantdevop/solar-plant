@@ -1,0 +1,31 @@
+@startuml
+!theme materia
+title Deployment Diagram: Azure Infrastructure
+
+cloud "Azure Cloud" {
+
+  node "Azure Kubernetes Service (AKS) Cluster" as AKS {
+    node "AKS Node 1" {
+      artifact "ingestion-service.jar" as ingestion_artifact
+      artifact "alerting-service.jar" as alerting_artifact
+    }
+    node "AKS Node 2" {
+      artifact "persistence-service.jar" as persistence_artifact
+      artifact "query-api-service.jar" as query_artifact
+    }
+    node "..."
+  }
+
+  database "Azure Cosmos DB" as CosmosDB
+  database "Azure PostgreSQL" as RDB
+  cloud "Azure Event Hubs" as EventHubs
+
+  ingestion_artifact -[hidden]right- alerting_artifact
+  persistence_artifact -[hidden]right- query_artifact
+}
+
+AKS --> EventHubs
+AKS --> RDB
+AKS --> CosmosDB
+
+@enduml

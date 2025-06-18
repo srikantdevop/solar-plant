@@ -1,0 +1,29 @@
+@startuml
+!theme materia
+title Architecture 2: Data Processing & Storage Layer
+
+!include <tupadr3/font-awesome-5/user_tie>
+
+package "Cloud Infrastructure" #LightGreen {
+    queue "MQTT Broker" as Broker
+
+    component "Real-time Processor" as Processor
+
+    database "Time-Series Database (TSDB)" as TSDB
+    note bottom: Stores high-volume telemetry data\n(voltage, temperature, etc.)
+
+    database "Relational Database (RDB)" as RDB
+    note bottom: Stores metadata\n(device info, alert rules, users)
+
+    component "Alerting Service" as Alerter
+}
+
+actor "Operator" as Operator <<$fa5_user_tie>>
+
+Broker --> Processor : Raw data stream
+Processor --> TSDB : Store Telemetry
+Processor --> RDB : Read Rules
+Processor --> Alerter : Trigger Alert
+Alerter --> Operator : Send Notification (Email, SMS)
+
+@enduml

@@ -1,0 +1,60 @@
+@startuml
+!theme materia
+skinparam componentStyle uml2
+
+title Solar Plant Management System - Detailed Architecture
+
+package "On-Premise: Solar Plant Site" #LightBlue {
+  node "IoT Gateway" as GW {
+    [Local Storage] as DB
+  }
+  note right of GW
+    - Aggregates sensor data
+    - Buffers data if offline
+    - Runs local safety logic
+  end note
+
+  component "Sensors & Actuators" as Sensors {
+    [Solar Panels]
+    [Inverters]
+    [Weather Station]
+    [Solar Trackers]
+  }
+   Sensors --> GW : Local Protocols (e.g., Modbus)
+}
+
+package "Cloud Infrastructure (SaaS)" #LightGreen {
+    queue "1. Ingestion: MQTT Broker" as MQ
+    node "2. Real-time Processor" as Realtime
+    database "3. Time-Series DB\n(e.g., InfluxDB)" as TSDB
+    database "4. Relational DB\n(e.g., PostgreSQL)" as RDB
+    node "5. Analytics & ML Engine" as Analytics
+    node "6. API Server" as API
+    [7. User Dashboard] as UI
+
+    note right of TSDB
+     Stores all sensor telemetry
+     (Voltage, Temp, Irradiance)
+    end note
+
+    note right of RDB
+     Stores metadata:
+     - Plant configuration
+     - User accounts
+     - Device info
+    end note
+}
+
+GW --> MQ : MQTT over Internet
+
+MQ --> Realtime : Raw Data Stream
+Realtime --> TSDB : Store Telemetry
+Realtime --> API : Push Live Alerts
+Realtime --> Analytics : Feed for ML Models
+
+API <--> UI : User Interaction
+API <--> Analytics : Query Data
+API <--> RDB : Get/Set Metadata
+API <--> TSDB : Get Historical Data
+
+@enduml

@@ -1,0 +1,38 @@
+@startuml
+!theme materia
+title Component Diagram: Solar Plant Management System
+
+package "User-Facing" {
+  component "Web Application\n(Dashboard)" as WebApp
+}
+
+package "Solar Plant System" {
+  component "query-api-service" as QuerySvc
+  component "ingestion-service" as IngestionSvc
+  component "alerting-service" as AlertingSvc
+  component "persistence-service" as PersistenceSvc
+}
+
+package "External & Managed Services" {
+  actor "IoT Gateway" as Gateway
+  cloud "Azure Event Hubs\n(Kafka)" as Kafka
+  database "Azure Cosmos DB\n(Telemetry)" as CosmosDB
+  database "Azure PostgreSQL\n(Metadata)" as RDB
+}
+
+' Relationships
+WebApp --> QuerySvc : HTTPS
+Gateway --> IngestionSvc : HTTPS
+
+IngestionSvc --> Kafka
+AlertingSvc .up.> Kafka : Consumes & Produces
+PersistenceSvc .up.> Kafka : Consumes
+
+QuerySvc .down.> RDB
+QuerySvc .down.> CosmosDB
+
+PersistenceSvc .down.> RDB
+PersistenceSvc .down.> CosmosDB
+
+AlertingSvc .down.> RDB : Reads Rules
+@enduml

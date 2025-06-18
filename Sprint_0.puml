@@ -1,0 +1,45 @@
+@startgantt
+!theme materia
+title SDLC Roadmap: Azure Microservices for Solar Plant Management
+
+Project starts on 2025-06-23
+saturday are closed
+sunday are closed
+
+-- Sprint 0: Foundation (2 Weeks) --
+[DDD Workshop & Domain Modeling] as [DDD] lasts 3 days
+[Azure IaC Setup (Terraform)] as [IaC] lasts 10 days
+[CI/CD Pipeline (Azure DevOps)] as [CICD] lasts 7 days
+[IaC] starts 2025-06-23
+[CICD] starts 2025-06-23
+[DDD] starts 2025-06-23
+
+-- Sprints 1-2: ingestion-service (2 Weeks) --
+[BDD: Ingestion Features] as [BDD1] lasts 2 days
+[TDD: Build Ingestion Service] as [TDD1] lasts 8 days
+[BDD1] starts at [IaC]'s end
+[TDD1] starts at [BDD1]'s end
+
+-- Sprints 3-4: alerting-service (2 Weeks) --
+[BDD: Alerting Features] as [BDD2] lasts 2 days
+[TDD: Build Alerting Service] as [TDD2] lasts 8 days
+[BDD2] starts at [TDD1]'s end
+[TDD2] starts at [BDD2]'s end
+
+-- Sprints 5-6: persistence-service (2 Weeks) --
+[BDD: Persistence Features] as [BDD3] lasts 2 days
+[TDD: Build Persistence Service] as [TDD3] lasts 8 days
+[Setup Flyway V1 Scripts] as [Flyway] lasts 3 days
+[BDD3] starts at [TDD2]'s end
+[TDD3] starts at [BDD3]'s end
+[Flyway] starts at [BDD3]'s end
+
+-- Sprints 7-8: query-api-service (2 Weeks) --
+[Define OpenAPI Spec] as [API_Spec] lasts 3 days
+[TDD: Build Query Service] as [TDD4] lasts 7 days
+[API_Spec] starts at [TDD3]'s end
+[TDD4] starts at [API_Spec]'s end
+
+[MVP Release] happens at [TDD4]'s end
+
+@endgantt

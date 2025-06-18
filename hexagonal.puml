@@ -1,0 +1,42 @@
+@startuml
+!theme materia
+
+package "External World" #LightGray {
+  actor "Web App / User" as User
+  database "PostgreSQL DB" as RDB
+  database "Cosmos DB" as TSDB
+}
+
+package "query-api-service (Microservice)" #AliceBlue {
+
+  package "Adapters" {
+    component "REST Controller\n(JAX-RS Resource)" as RESTAdapter
+    component "PostgreSQL Adapter\n(JPA/JDBC)" as RDBAdapter
+    component "CosmosDB Adapter" as TSDBAdapter
+  }
+
+  package "Application Core (The Hexagon)" #White {
+    hexagon "Business & Domain Logic" as Core {
+      () "Query API Port" as IngressPort
+      () "Device Repository Port" as DevicePort
+      () "Telemetry Repository Port" as TelemetryPort
+    }
+  }
+}
+
+' Primary/Driving Adapter Flow
+User --> RESTAdapter
+RESTAdapter ..> IngressPort : invokes
+
+' Application Core Flow
+IngressPort ..> Core
+Core ..> DevicePort : requires
+Core ..> TelemetryPort : requires
+
+' Secondary/Driven Adapter Flow
+DevicePort <.. RDBAdapter : implements
+TelemetryPort <.. TSDBAdapter : implements
+RDBAdapter --> RDB
+TSDBAdapter --> TSDB
+
+@enduml

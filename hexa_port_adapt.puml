@@ -1,0 +1,41 @@
+@startuml
+!theme materia
+title Internal Architecture of query-api-service
+
+package "1. Adapters (Infrastructure Layer)" {
+  package "Primary / Driving Adapters" {
+    component "QueryResource" as RestAdapter {
+      + List<Device> listDevices(plantId)
+      + List<Alert> listAlerts(...)
+    }
+  }
+
+  package "Secondary / Driven Adapters" {
+    component "PostgresRepositoryAdapter" as PostgresAdapter
+    component "CosmosDBRepositoryAdapter" as CosmosAdapter
+  }
+}
+
+package "2. Application Core (Domain Layer)" {
+  hexagon "Business Logic" {
+    () "QueryAPIPort" as IngressPort
+    () "DeviceRepositoryPort" as DeviceRepoPort
+    () "AlertRepositoryPort" as AlertRepoPort
+    () "TelemetryRepositoryPort" as TelemetryRepoPort
+
+    component "QueryApplicationService" as AppService
+  }
+}
+
+' Connections
+RestAdapter ..|> IngressPort : implements
+RestAdapter --> AppService : uses
+
+AppService --> DeviceRepoPort
+AppService --> AlertRepoPort
+AppService --> TelemetryRepoPort
+
+PostgresAdapter ..|> DeviceRepoPort : implements
+PostgresAdapter ..|> AlertRepoPort : implements
+CosmosAdapter ..|> TelemetryRepoPort : implements
+@enduml
